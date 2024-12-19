@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech-to-Text Survey</title>
+</head>
+<body>
+  <h1>Speech-to-Text Survey</h1>
+  <p>Click the microphone and speak your response:</p>
+
+  <button id="start">🎤 Start Speaking</button>
+  <p><strong>Response:</strong></p>
+  <textarea id="output" rows="5" cols="50" placeholder="Your response will appear here..."></textarea>
+
+  <script>
+    const startButton = document.getElementById("start");
+    const output = document.getElementById("output");
+
+    // Check if browser supports Web Speech API
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+
+      recognition.continuous = false; // Stops after each speech recognition
+      recognition.interimResults = false; // Only show final results
+      recognition.lang = "en-US"; // Set language
+
+      recognition.onstart = () => {
+        console.log("Speech recognition started. Speak now...");
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        console.log("Speech recognized:", transcript);
+        output.value += transcript + "\n";
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        alert("Error: " + event.error);
+      };
+
+      recognition.onspeechend = () => {
+        console.log("Speech recognition ended.");
+        startButton.textContent = "🎤 Start Speaking";
+      };
+
+      startButton.addEventListener("click", () => {
+        try {
+          recognition.start();
+          startButton.textContent = "Listening...";
+        } catch (err) {
+          console.error("Speech recognition error during start:", err);
+        }
+      });
+    } else {
+      console.error("Web Speech API is not supported in this browser.");
+      alert("Your browser does not support the Web Speech API. Please try Chrome.");
+    }
+  </script>
+</body>
+</html>
